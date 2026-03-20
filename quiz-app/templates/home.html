@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="homepage-wrapper">
+
+    <!-- ══ 1. HERO ══════════════════════════════════════════════════ -->
+    <section class="hero text-center">
+        <div class="hero-badges fade-in" style="animation-delay:.1s;">
+            <div class="badge"><i class="ph-fill ph-rocket-launch"></i> Level Up Your Knowledge</div>
+            <div class="badge"><i class="ph-fill ph-users"></i> Compete Globally</div>
+            <div class="badge"><i class="ph-fill ph-lightning"></i> Earn XP Every Round</div>
+        </div>
+
+        <h1 class="fade-in" style="animation-delay:.22s;">
+            Master Every Subject.<br>
+            <span class="text-gradient">Dominate the Leaderboard.</span>
+        </h1>
+
+        <p class="fade-in" style="animation-delay:.34s; max-width:560px;">
+            Dive into challenging quizzes, earn XP for every correct answer,
+            build your daily streak, and compete globally. Are you the ultimate QuizGenius?
+        </p>
+
+        <div class="hero-actions fade-in" style="animation-delay:.46s;">
+            {% if current_user %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">
+                    <i class="ph-fill ph-play-circle"></i> Go to Dashboard
+                </a>
+                <a href="{{ url_for('main.clash') }}" class="btn btn-glass btn-lg">
+                    <span class="theme-emoji">⚔️</span> Enter Clash Arena
+                </a>
+            {% else %}
+                <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-lg">
+                    Start Playing Free <i class="ph-bold ph-arrow-right"></i>
+                </a>
+                <a href="{{ url_for('main.leaderboard') }}" class="btn btn-glass btn-lg">
+                    <i class="ph-fill ph-trophy"></i> View Leaderboard
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ══ 2. FEATURES ══════════════════════════════════════════════ -->
+    <section class="home-section text-center reveal-on-scroll">
+        <h2 style="font-size:2.4rem; margin-bottom:.5rem;">
+            Why You'll Love <span class="text-gradient">QuizGenius</span>
+        </h2>
+        <p class="section-subtitle" style="max-width:550px; margin: 0 auto 3rem;">
+            It's more than just a quiz — it's a journey of knowledge and competition.
+        </p>
+        <div class="feature-grid">
+            <div class="glass feature-card" style="transition-delay:.05s;">
+                <div class="feature-icon"><i class="ph-fill ph-game-controller"></i></div>
+                <h3>Gamified Learning</h3>
+                <p>Earn XP, level up, and unlock achievements. Learning has never been this addictive.</p>
+            </div>
+            <div class="glass feature-card" style="transition-delay:.15s;">
+                <div class="feature-icon" style="background: linear-gradient(135deg,var(--secondary),#9333ea);box-shadow:0 8px 24px var(--secondary-glow);">
+                    <i class="ph-fill ph-trophy"></i>
+                </div>
+                <h3>Climb the Ranks</h3>
+                <p>See how you stack up against players worldwide on the live global leaderboard.</p>
+            </div>
+            <div class="glass feature-card" style="transition-delay:.25s;">
+                <div class="feature-icon" style="background: linear-gradient(135deg,var(--accent),var(--primary));box-shadow:0 8px 24px var(--accent-glow);">
+                    <i class="ph-fill ph-users-three"></i>
+                </div>
+                <h3>Clash with Friends</h3>
+                <p>Create private rooms and challenge your friends in real-time quiz battles.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 3. HOW IT WORKS ══════════════════════════════════════════ -->
+    <section style="background: var(--table-row-bg); border-top:1px solid var(--glass-border); border-bottom:1px solid var(--glass-border);">
+        <div class="home-section text-center reveal-on-scroll">
+            <h2 style="font-size:2.4rem; margin-bottom:.5rem;">How It <span class="text-gradient">Works</span></h2>
+            <p class="section-subtitle" style="max-width:520px; margin:0 auto 3rem;">
+                Start climbing the leaderboard in three simple steps.
+            </p>
+            <div class="feature-grid" style="gap:2.5rem;">
+                <div class="step-card reveal-on-scroll" style="transition-delay:.1s;">
+                    <div class="glass step-icon" style="color:var(--accent);">
+                        <i class="ph-fill ph-user-plus" style="font-size:2rem;"></i>
+                    </div>
+                    <h3 style="font-size:1.2rem;">1. Create an Account</h3>
+                    <p style="font-size:.93rem;">Sign up for free to start tracking your XP, streaks, and global ranking.</p>
+                </div>
+                <div class="step-card reveal-on-scroll" style="transition-delay:.2s;">
+                    <div class="glass step-icon" style="color:var(--primary-light);">
+                        <i class="ph-fill ph-brain" style="font-size:2rem;"></i>
+                    </div>
+                    <h3 style="font-size:1.2rem;">2. Choose a Quiz</h3>
+                    <p style="font-size:.93rem;">Pick a category and difficulty, then answer challenging questions against the clock.</p>
+                </div>
+                <div class="step-card reveal-on-scroll" style="transition-delay:.3s;">
+                    <div class="glass step-icon" style="color:var(--gold);">
+                        <i class="ph-fill ph-ranking" style="font-size:2rem;"></i>
+                    </div>
+                    <h3 style="font-size:1.2rem;">3. Rank Up</h3>
+                    <p style="font-size:.93rem;">Earn points for correct answers to level up your profile and dominate the leaderboard.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 4. FINAL CTA ══════════════════════════════════════════════ -->
+    <div class="home-section reveal-on-scroll" style="max-width: 900px; margin: 4rem auto;">
+        <div class="glass hover-glow" style="position: relative; overflow: hidden; padding: 5rem 3rem; text-align: center; border-radius: 24px; border: 1px solid var(--primary);">
+            <!-- Decorative Background Elements -->
+            <div style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, var(--primary-glow), transparent 70%); border-radius: 50%; opacity: 0.6; pointer-events: none;"></div>
+            <div style="position: absolute; bottom: -100px; right: -100px; width: 300px; height: 300px; background: radial-gradient(circle, var(--secondary-glow), transparent 70%); border-radius: 50%; opacity: 0.6; pointer-events: none;"></div>
+
+            <div style="position: relative; z-index: 1;">
+                <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); margin-bottom: 1.5rem; box-shadow: 0 8px 24px var(--primary-glow);">
+                    <i class="ph-bold ph-rocket-launch" style="font-size: 2rem; color: #fff;"></i>
+                </div>
+                
+                <h2 style="font-size: 2.8rem; font-weight: 900; margin-bottom: 1rem; line-height: 1.2;">
+                    Ready to <span class="text-gradient">Make History?</span>
+                </h2>
+                <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 500px; margin: 0 auto 2.5rem;">
+                    Don't just play—dominate. Join the ultimate trivia battleground today and turn your knowledge into glory.
+                </p>
+
+                <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+                    {% if current_user %}
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg" style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 99px;">
+                            <i class="ph-fill ph-squares-four"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('main.clash') }}" class="btn btn-glass btn-lg" style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 99px;">
+                            <span class="theme-emoji">⚔️</span> Clash Arena
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-lg" style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 99px; box-shadow: 0 10px 30px var(--primary-glow);">
+                            Create Free Account <i class="ph-bold ph-arrow-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+                
+                {% if not current_user %}
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+                    Already a member? <a href="{{ url_for('main.login') }}" style="color: var(--primary-light); font-weight: 600;">Log in here</a>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const mainContainer = document.querySelector('.main-container');
+    if (mainContainer) mainContainer.classList.add('home-override');
+
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('is-visible');
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => revealObserver.observe(el));
+});
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="32" height="32">
+  <defs>
+    <!-- Gamified QuizGenius Gradient -->
+    <linearGradient id="neon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="50%" stop-color="#ec4899" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+  </defs>
+  
+  <g stroke="url(#neon-gradient)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Left Hemisphere -->
+    <polygon points="110,28 56,44 24,108 40,180 80,220 110,196" />
+    <!-- Left Lobe Folds -->
+    <polyline points="110,88 64,96 32,144" />
+    <polyline points="110,148 80,164 60,200" />
+    
+    <!-- Right Hemisphere -->
+    <polygon points="146,28 200,44 232,108 216,180 176,220 146,196" />
+    <!-- Right Lobe Folds -->
+    <polyline points="146,88 192,96 224,144" />
+    <polyline points="146,148 176,164 196,200" />
+  </g>
+</svg>
