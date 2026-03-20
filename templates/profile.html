@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass fade-in hover-glow" style="padding:2.5rem;margin-top:1.5rem;">
+
+    <!-- ── Profile Header ────────────────────────────────────────── -->
+    <div class="profile-header">
+        <div class="avatar profile-avatar" data-name="{{ user.username }}">
+            {% if user.avatar_url %}<img src="{{ user.avatar_url }}" alt="Profile Photo">{% else %}{{ user.username[0]|upper }}{% endif %}
+        </div>
+        <div style="flex:1;min-width:0;">
+            <h2 class="profile-name" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ user.username }}">{{ user.username }}</h2>
+            <p class="rank-title" style="margin-bottom:.75rem;">{{ rank_title }}</p>
+            <div class="profile-badges mb-3">
+                <span class="badge"><i class="ph-fill ph-star"></i> Level {{ user.level }}</span>
+                <span class="badge streak-badge"><i class="ph-fill ph-fire"></i> {{ streak }} Day Streak</span>
+            </div>
+            <div class="xp-bar-container">
+                <div class="xp-bar-header">
+                    <span>XP Progress</span>
+                    <span class="text-primary">{{ user.xp }} / {{ xp_next }} XP</span>
+                </div>
+                <div class="progress-container" style="height:10px;">
+                    {% set xp_pct = ((user.xp / xp_next) * 100)|int %}
+                    <div class="progress-fill" {{ ('style="width: ' ~ xp_pct ~ '%;"') | safe }}></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Stats Grid ─────────────────────────────────────────────── -->
+    <div class="dashboard-grid mb-4">
+        <div class="glass stat-card hover-glow">
+            <div class="stat-icon text-primary"><i class="ph-fill ph-lightning"></i></div>
+            <div class="stat-value">{{ user.xp }}</div>
+            <div class="stat-label">Total XP</div>
+        </div>
+        <div class="glass stat-card hover-glow">
+            <div class="stat-icon text-accent"><i class="ph-fill ph-check-circle"></i></div>
+            <div class="stat-value">{{ results|length }}</div>
+            <div class="stat-label">Quizzes Completed</div>
+        </div>
+        <div class="glass stat-card hover-glow">
+            <div class="stat-icon text-success"><i class="ph-fill ph-calendar-check"></i></div>
+            <div class="stat-value date-value">{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'Unknown' }}</div>
+            <div class="stat-label">Member Since</div>
+        </div>
+    </div>
+
+    <!-- ── Achievement Badges ─────────────────────────────────────── -->
+    <h3 class="history-title"><i class="ph-fill ph-medal text-warning"></i> Achievement Badges</h3>
+    <div class="badges-grid mb-4">
+        <div class="badge-card {% if badges.first_quiz %}earned{% endif %}" title="Complete your first quiz">
+            <i class="ph-fill ph-star"></i><span>First Quiz</span>
+        </div>
+        <div class="badge-card {% if badges.streak_5 %}earned{% endif %}" title="Achieve a 5-day streak">
+            <i class="ph-fill ph-fire"></i><span>5 Streak</span>
+        </div>
+        <div class="badge-card {% if badges.perfect_score %}earned{% endif %}" title="Get a perfect score">
+            <i class="ph-fill ph-target"></i><span>Perfect Score</span>
+        </div>
+        <div class="badge-card {% if badges.quiz_master %}earned{% endif %}" title="Reach Level 10">
+            <i class="ph-fill ph-brain"></i><span>Quiz Master</span>
+        </div>
+        <div class="badge-card {% if badges.dedicated %}earned{% endif %}" title="Complete 50 quizzes">
+            <i class="ph-fill ph-trophy"></i><span>Dedicated</span>
+        </div>
+    </div>
+
+    <!-- ── Quiz History ───────────────────────────────────────────── -->
+    <h3 class="history-title"><i class="ph-fill ph-clock-counter-clockwise text-primary"></i> Full Quiz History</h3>
+    {% if results %}
+    <div class="table-container mb-4">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Score</th>
+                    <th>Accuracy</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in results %}
+                <tr>
+                    <td class="text-muted">#{{ r.id }}</td>
+                    <td>{{ r.date.strftime('%Y-%m-%d') if r.date else '' }}</td>
+                    <td class="font-bold">{{ r.score }} / {{ r.total_questions }}</td>
+                    <td style="width:35%;">
+                        {% set pct = r.percentage|default(0)|round|int %}
+                        {% if pct >= 80 %}
+                            {% set pc = 'var(--success)' %}
+                        {% elif pct >= 50 %}
+                            {% set pc = 'var(--warning)' %}
+                        {% else %}
+                            {% set pc = 'var(--danger)' %}
+                        {% endif %}
+                        <div class="accuracy-cell">
+                            <div class="progress-container">
+                                <div class="progress-fill" {{ ('style="width: ' ~ pct ~ '%; background: ' ~ pc ~ ';"') | safe }}></div>
+                            </div>
+                            <span class="accuracy-text" {{ ('style="color: ' ~ pc ~ ';"') | safe }}>{{ pct }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state mb-4">
+        <i class="ph-fill ph-folder-open empty-icon"></i>
+        <p>No quiz history yet.</p>
+    </div>
+    {% endif %}
+
+    <!-- ── Account Settings ───────────────────────────────────────── -->
+    <h3 class="history-title mt-4"><i class="ph-fill ph-user-gear text-primary"></i> Account Settings</h3>
+
+    <!-- Photo upload -->
+    <div class="glass mb-3 hover-glow" style="padding: 2rem; border-radius: 20px;">
+        <h4 style="margin-bottom: 1.5rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+            <i class="ph-fill ph-image text-primary"></i> Profile Photo
+        </h4>
+        <div style="display: flex; gap: 2.5rem; align-items: center; flex-wrap: wrap;">
+            
+            <div style="position: relative;">
+                <div class="avatar photo-preview" id="photo-preview-box" data-name="{{ user.username }}" style="width: 120px; height: 120px; font-size: 3rem; border-width: 4px; box-shadow: 0 0 30px var(--primary-glow); transition: transform 0.3s ease; margin: 0;">
+                    {% if user.avatar_url %}
+                        <img src="{{ user.avatar_url }}" alt="Profile Photo">
+                    {% else %}
+                        {{ user.username[0]|upper }}
+                    {% endif %}
+                </div>
+                <!-- Small decorative badge -->
+                <div style="position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid var(--bg-surface); box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                    <i class="ph-bold ph-camera"></i>
+                </div>
+            </div>
+            
+            <div style="flex: 1; min-width: 250px;">
+                <form action="/profile/update" method="POST" enctype="multipart/form-data" id="photo-form">
+                    <input type="hidden" name="action" value="photo">
+                    <input type="file" name="avatar_file" id="avatar_file" class="hidden-file-input" accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/gif,image/webp">
+                    
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                        <label for="avatar_file" class="btn btn-outline" style="padding: 0.6rem 1.2rem; cursor: pointer; margin: 0;">
+                            <i class="ph ph-upload-simple"></i> Choose Image
+                        </label>
+                        <button type="submit" class="btn btn-primary" id="save-photo-btn" style="padding: 0.6rem 1.2rem; display: none; margin: 0;">
+                            <i class="ph-bold ph-check"></i> Save Changes
+                        </button>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Recommended: Square image, max 2MB (JPG, PNG, WEBP).</p>
+                </form>
+
+                {% if user.avatar_url %}
+                <form action="/profile/update" method="POST" style="margin-top: 1.25rem; border-top: 1px dashed var(--glass-border); padding-top: 1.25rem;">
+                    <input type="hidden" name="action" value="remove_photo">
+                    <button type="submit" class="btn btn-glass btn-sm" style="color: var(--danger); border-color: transparent; padding: 0.4rem 0.8rem;">
+                        <i class="ph-bold ph-trash"></i> Remove Current Photo
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Username & Password -->
+    <div class="dashboard-grid" style="gap:1.5rem;">
+        <!-- Change username -->
+        <div class="glass hover-glow" style="padding:1.75rem;">
+            <form action="/profile/update" method="POST">
+                <input type="hidden" name="action" value="username">
+                <h4 style="margin-bottom:1.25rem;font-size:1rem;">Account Details</h4>
+                <div class="form-group">
+                    <div class="input-with-icon" title="Email cannot be changed">
+                        <input type="email" class="form-control" value="{{ user.email }}" readonly style="opacity:.5;cursor:not-allowed;">
+                        <i class="ph ph-envelope"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.45rem;">Username & Tag</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <div class="input-with-icon" style="flex: 1;">
+                            <input type="text" name="username" class="form-control" value="{{ user.username.split('#')[0] if '#' in user.username else user.username }}" required minlength="3" placeholder="Username">
+                            <i class="ph ph-user"></i>
+                        </div>
+                        <div class="input-with-icon" style="width: 120px;">
+                            <input type="text" name="discriminator" class="form-control" value="{{ user.username.split('#')[1] if '#' in user.username else '' }}" required pattern="[A-Za-z0-9]{1,6}" maxlength="6" placeholder="TAG123" style="padding-left: 2.2rem; font-family: monospace; font-weight: bold; font-size: 0.95rem;">
+                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-family: monospace; font-weight: bold; font-size: 1.1rem; pointer-events: none;">#</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 0;">Customize your tag (up to 6 letters or numbers), as long as it's unique to you.</p>
+                </div>
+                <button type="submit" class="btn btn-outline w-full btn-sm"><i class="ph-fill ph-floppy-disk"></i> Update Username</button>
+            </form>
+        </div>
+
+        <!-- Change password -->
+        <div class="glass hover-glow" style="padding:1.75rem;">
+            <form action="/profile/update" method="POST">
+                <input type="hidden" name="action" value="password">
+                <h4 style="margin-bottom:1.25rem;font-size:1rem;">Change Password</h4>
+                <div class="form-group">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.45rem;" for="new_password">New Password</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="new_password" name="new_password" class="form-control has-right-icon" placeholder="Min 6 characters" minlength="6" required>
+                        <i class="ph ph-lock-key"></i>
+                        <i class="ph ph-eye toggle-password"></i>
+                    </div>
+                    <!-- Strength bar -->
+                    <div class="strength-bar-wrap" style="margin-top: 8px; background: rgba(255,255,255,0.1);">
+                        <div class="strength-bar" id="strength-bar"></div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; font-weight: 500;" id="strength-label"></div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.45rem;" for="confirm_password">Confirm New Password</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control has-right-icon" placeholder="Re-enter new password" required>
+                        <i class="ph ph-check-circle" id="confirm-icon"></i>
+                        <i class="ph ph-eye toggle-password"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline w-full btn-sm"><i class="ph-fill ph-shield-check"></i> Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── Danger Zone ────────────────────────────────────────────── -->
+    <div class="glass hover-glow" style="padding:1.75rem; margin-top: 1.5rem; border-color: var(--danger-border); background: linear-gradient(135deg, rgba(239,68,68,0.05), var(--card-inner-bg));">
+        <h4 style="margin-bottom:0.5rem;font-size:1rem;color:var(--danger);display:flex;align-items:center;gap:8px;">
+            <i class="ph-fill ph-warning-octagon"></i> Danger Zone
+        </h4>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.25rem;">Once you delete your account, there is no going back. All of your XP, friends, and leaderboard positions will be lost forever.</p>
+        <form action="{{ url_for('main.delete_account') }}" method="POST" onsubmit="return confirm('Are you absolutely sure you want to delete your account? This action CANNOT be undone.');">
+            <button type="submit" class="btn btn-danger btn-sm"><i class="ph-bold ph-trash"></i> Delete My Account</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('avatar_file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = evt => {
+            const box = document.getElementById('photo-preview-box');
+            box.innerHTML = `<img src="${evt.target.result}" alt="Preview">`;
+            const saveBtn = document.getElementById('save-photo-btn');
+            if (saveBtn) saveBtn.style.display = 'inline-flex';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+const newPw  = document.getElementById('new_password');
+const confPw = document.getElementById('confirm_password');
+const confIc = document.getElementById('confirm-icon');
+function checkMatch() {
+    if (!confPw.value) { confIc.className = 'ph ph-check-circle'; return; }
+    if (newPw.value === confPw.value) {
+        confIc.className = 'ph ph-check-circle icon-match';
+    } else {
+        confIc.className = 'ph ph-x-circle icon-mismatch';
+    }
+}
+newPw  && newPw.addEventListener('input', checkMatch);
+confPw && confPw.addEventListener('input', checkMatch);
+</script>
+{% endblock %}

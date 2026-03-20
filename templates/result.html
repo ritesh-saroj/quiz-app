@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Confetti for high scores -->
+{% if result.percentage >= 80 %}
+<div class="confetti-container" id="confetti-container"></div>
+{% endif %}
+
+<div class="glass text-center hover-glow fade-in" style="max-width:800px;margin:2rem auto;padding:3rem 2rem;">
+    <h1 class="text-gradient" style="font-size:2.6rem;margin-bottom:.5rem;">Quiz Completed!</h1>
+    <p style="margin-bottom:2.5rem;">Let's see how you did.</p>
+
+    <!-- ── Animated score ring ──────────────────────────────────── -->
+    <div class="result-score-ring" id="score-ring">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+            <defs>
+                <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:var(--primary)"/>
+                    <stop offset="100%" style="stop-color:var(--secondary)"/>
+                </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="100" cy="100" r="88"></circle>
+            <circle class="ring-fill" cx="100" cy="100" r="88" id="ring-fill"
+                stroke-dasharray="552.9" stroke-dashoffset="552.9"></circle>
+        </svg>
+        <div class="ring-center">
+            <div class="score-big">{{ result.score }}<span style="font-size:1.4rem;color:var(--text-muted);">/{{ result.total }}</span></div>
+            <div class="score-small">{{ result.percentage }}% Accuracy</div>
+        </div>
+    </div>
+
+    <!-- Level up banner -->
+    {% if result.leveled_up %}
+    <div class="level-up-banner">
+        <i class="ph-fill ph-shooting-star" style="font-size:1.8rem;"></i>
+        <div>
+            <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:2px;">Level Up!</div>
+            <div>You are now <span style="color:#fff;">Level {{ result.new_level }}</span></div>
+        </div>
+        <i class="ph-fill ph-shooting-star" style="font-size:1.8rem;"></i>
+    </div>
+    {% endif %}
+
+    <!-- XP Rewards card -->
+    <div class="glass rewards-card hover-glow" style="background:rgba(0,0,0,0.25);max-width:380px;margin:0 auto;">
+        <h3 style="margin-bottom:1.25rem;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <i class="ph-fill ph-gift text-primary"></i> Rewards
+        </h3>
+        <div class="xp-row">
+            <span>Base XP</span>
+            <span class="text-success font-bold">+{{ result.base_xp }}</span>
+        </div>
+        <div class="xp-row">
+            <span>Accuracy Bonus</span>
+            <span class="text-warning font-bold">+{{ result.bonus_xp }}</span>
+        </div>
+        {% if result.has_boost %}
+        <div class="xp-row text-success">
+            <span><i class="ph-fill ph-lightning"></i> Double XP Boost</span>
+            <span class="font-bold">×2!</span>
+        </div>
+        {% endif %}
+        <div class="xp-row" style="border-top:1px solid rgba(255,255,255,0.08);padding-top:1rem;">
+            <span class="text-gradient font-bold">Total XP Earned</span>
+            <span class="text-gradient font-bold">+{{ result.xp_earned }} XP</span>
+        </div>
+        <p style="color:var(--text-muted);font-size:.85rem;margin-top:1rem;margin-bottom:0;">
+            Total XP is now: <strong style="color:var(--primary-light);">{{ result.new_xp }}</strong>
+        </p>
+    </div>
+
+    <!-- Boost reward -->
+    {% if result.awarded_boost %}
+    <div class="level-up-banner fade-in mt-3" style="animation-delay:.5s;background:linear-gradient(135deg,rgba(245,158,11,0.18),rgba(236,72,153,0.18));border-color:var(--warning);color:var(--warning);">
+        <i class="ph-fill ph-lightning" style="font-size:1.8rem;"></i>
+        <div>
+            <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:2px;">Bonus Reward!</div>
+            <div>You earned a <span style="color:#fff;">{{ result.awarded_boost }} Min Double XP Boost</span> for your next round!</div>
+        </div>
+        <i class="ph-fill ph-lightning" style="font-size:1.8rem;"></i>
+    </div>
+    {% endif %}
+
+    <!-- Action buttons -->
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2rem;">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">Return to Dashboard</a>
+        <a href="{{ url_for('main.leaderboard') }}" class="btn btn-outline btn-lg">View Leaderboard</a>
+    </div>
+
+    <!-- Question breakdown accordion -->
+    <div class="breakdown-card glass hover-glow" style="text-align:left;margin-top:3rem;">
+        <h3 style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;border-bottom:1px solid var(--glass-border);padding-bottom:.75rem;">
+            <i class="ph-fill ph-list-checks text-accent"></i> Question Breakdown
+        </h3>
+        {% for item in result.breakdown %}
+        <div class="q-breakdown {{ 'correct' if item.is_correct else 'incorrect' }}">
+            <h4>{{ item.question }}</h4>
+            <div class="answer-row">
+                <span class="answer-label">Your Answer:</span>
+                {% set answer_color = 'var(--success)' if item.is_correct else 'var(--danger)' %}
+                <span {{ ('style="color:' ~ answer_color ~ ';font-weight:500;"') | safe }}>
+                    {% if item.chosen %}
+                        {{ item.chosen }} – {{ item.options.get(item.chosen, 'Unknown') }}
+                    {% else %}
+                        No Answer
+                    {% endif %}
+                </span>
+            </div>
+            {% if not item.is_correct %}
+            <div class="answer-row">
+                <span class="answer-label">Correct:</span>
+                <span class="text-success font-bold">{{ item.correct }} – {{ item.options.get(item.correct, 'Unknown') }}</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Animate score ring
+    const pct = parseFloat('{{ result.percentage }}');
+    const circumference = 552.9;
+    const ringFill = document.getElementById('ring-fill');
+    if (ringFill) {
+        setTimeout(() => {
+            ringFill.style.strokeDashoffset = circumference * (1 - pct / 100);
+        }, 300);
+    }
+
+    // Confetti burst for high scores
+    const confettiContainer = document.getElementById('confetti-container');
+    if (confettiContainer) {
+        const colors = ['#8b5cf6','#ec4899','#06b6d4','#10b981','#f59e0b','#a78bfa'];
+        for (let i = 0; i < 60; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.setProperty('--duration', (Math.random() * 2 + 2) + 's');
+            piece.style.setProperty('--delay',    (Math.random() * 0.8) + 's');
+            piece.style.setProperty('--drift',    (Math.random() * 200 - 100) + 'px');
+            piece.style.left = Math.random() * 100 + 'vw';
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.width = (Math.random() * 8 + 6) + 'px';
+            piece.style.height = (Math.random() * 10 + 8) + 'px';
+            piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            confettiContainer.appendChild(piece);
+        }
+        setTimeout(() => confettiContainer.remove(), 5000);
+    }
+});
+</script>
+{% endblock %}
