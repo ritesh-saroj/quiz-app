@@ -147,6 +147,7 @@ body {
     flex-direction: column;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    font-size: clamp(0.9rem, 1vw + 0.5rem, 1rem); /* Fluid base font */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -156,10 +157,15 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0.75rem;
     color: var(--text-main);
 }
+
+h1 { font-size: clamp(2.2rem, 5vw + 1rem, 4rem); }
+h2 { font-size: clamp(1.8rem, 4vw + 0.8rem, 2.8rem); }
+h3 { font-size: clamp(1.4rem, 3vw + 0.6rem, 2rem); }
+
 p { color: var(--text-body); line-height: 1.7; margin-bottom: 1rem; }
 a { text-decoration: none; color: var(--primary-light); transition: color 0.25s ease; }
 a:hover { color: var(--accent); }
-img { display: block; max-width: 100%; }
+img { display: block; max-width: 100%; height: auto; }
 
 /* Background Animation */
 .bg-animation {
@@ -423,15 +429,15 @@ img { display: block; max-width: 100%; }
 .main-container {
     flex: 1;
     padding: 88px 5% 48px;
-    max-width: 1200px;
+    max-width: 1300px; /* Protected max width for ultra-wide */
     margin: 0 auto;
     width: 100%;
     display: flex; flex-direction: column;
 }
 .center-box {
-    max-width: 460px;
+    max-width: 480px;
     margin: auto; width: 100%;
-    padding: 2.5rem;
+    padding: 2.5rem 2rem;
 }
 .section-wrap {
     padding: 5rem 5%;
@@ -439,8 +445,16 @@ img { display: block; max-width: 100%; }
     margin: 0 auto;
     width: 100%;
 }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+.grid-2 { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    gap: 2rem; 
+}
+.grid-3 { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 2rem; 
+}
 .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
 
 /* Forms */
@@ -891,30 +905,80 @@ a:hover .theme-emoji, .glass:hover .theme-emoji { transform: rotate(-15deg) scal
 /* ============================================================
    RESPONSIVE
 ============================================================ */
-@media (max-width: 900px) {
-    .grid-2 { grid-template-columns: 1fr; }
-    .grid-3 { grid-template-columns: 1fr; }
-    .podium { gap: 0.5rem; }
-    .podium-1 .podium-base { width:90px; height:76px; }
-    .podium-2 .podium-base { width:80px; height:58px; }
-    .podium-3 .podium-base { width:72px; height:44px; }
+/* ============================================================
+   RESPONSIVE DESIGN SYSTEM
+============================================================ */
+
+/* --- Tablets (up to 1024px) --- */
+@media (max-width: 1024px) {
+    .section-wrap { padding: 4rem 4%; }
+    .hero { min-height: auto; padding: 6rem 1rem 4rem; }
+    .main-container { padding-top: 80px; }
 }
+
+/* --- Mobile L (up to 768px) --- */
 @media (max-width: 768px) {
-    .navbar { padding: 0 4%; }
+    :root {
+        --radius-lg: 16px;
+        --radius-xl: 22px;
+    }
+
+    .navbar { height: 62px; padding: 0 4%; }
+    .logo { font-size: 1.4rem; }
+    .logo i { font-size: 1.6rem; }
+    
     .nav-links { display: none; }
     .hamburger { display: flex; }
-    .main-container { padding: 88px 4% 48px; }
-    .dashboard-grid { grid-template-columns: 1fr; }
-    .stats-row { flex-wrap: wrap; gap: 1rem; }
-    .profile-header { justify-content: center; text-align: center; }
-    .profile-badges { justify-content: center; }
-    .hero h1 { letter-spacing: -1px; }
-    .podium { gap: 0.4rem; }
-    .podium-1 .podium-avatar { width:58px; height:58px; font-size:1.4rem; }
-    .podium-2 .podium-avatar { width:48px; height:48px; font-size:1.1rem; }
-    .podium-3 .podium-avatar { width:42px; height:42px; font-size:1rem; }
+    
+    .main-container { padding: 78px 4% 3rem; }
+    .section-wrap { padding: 3rem 4%; }
+    
+    .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 1.25rem; }
+    .dashboard-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+    
+    .profile-header { gap: 1.25rem; flex-direction: column; text-align: center; }
+    .profile-avatar { width: 90px; height: 90px; font-size: 2.2rem; }
+    .profile-name { font-size: 1.6rem; }
+    
+    .podium { gap: 0.5rem; margin-top: 1rem; }
+    .podium-slot { gap: 0.5rem; }
+    .podium-avatar { width: 52px !important; height: 52px !important; font-size: 1.2rem !important; }
+    .podium-base { width: 80px !important; }
+    .podium-1 .podium-base { height: 70px; }
+    .podium-2 .podium-base { height: 50px; }
+    .podium-3 .podium-base { height: 40px; }
 }
+
+/* --- Mobile S (up to 480px) --- */
 @media (max-width: 480px) {
-    .center-box { padding: 1.75rem 1.25rem; }
-    .hero-actions { flex-direction: column; align-items: center; }
+    .hero { padding: 4rem 1rem 3rem; }
+    .hero-badges { gap: 0.5rem; }
+    .badge { padding: 0.25rem 0.6rem; font-size: 0.75rem; }
+    
+    .hero-actions { flex-direction: column; width: 100%; gap: 0.75rem; }
+    .hero-actions .btn { width: 100%; }
+    
+    .stats-row { gap: 0.75rem; justify-content: space-between; }
+    .stat-value { font-size: 1.3rem; }
+    .stat-label { font-size: 0.65rem; }
+    
+    .center-box { padding: 2rem 1rem; }
+    .glass { padding: 1.5rem !important; }
+    
+    .question-text { font-size: 1.25rem; margin: 1.5rem 0; }
+    .option-item { padding: 1rem; font-size: 0.95rem; }
+    .option-letter { width: 32px; height: 32px; font-size: 0.9rem; }
+    
+    .table-container td { padding: 0.75rem 0.5rem; font-size: 0.85rem; }
+    .pct-circle { width: 38px; height: 38px; font-size: 0.75rem; }
+    
+    .rewards-card { padding: 1.25rem; }
+    .xp-row { font-size: 0.9rem; }
+    
+    .mobile-menu a { font-size: 1.2rem; }
+}
+
+/* --- Ultra Wide Protection --- */
+@media (min-width: 1440px) {
+    .main-container { max-width: 1300px; }
 }

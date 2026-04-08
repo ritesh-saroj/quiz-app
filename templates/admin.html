@@ -175,6 +175,7 @@
                             <th>Role</th>
                             <th>Stats</th>
                             <th>Registered</th>
+                            <th class="text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -197,6 +198,18 @@
                                 </div>
                             </td>
                             <td style="font-size: 0.85rem; color: var(--text-muted);">{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else 'N/A' }}</td>
+                            <td class="text-right">
+                                {% if current_user and current_user.id != u.id %}
+                                <form action="{{ url_for('main.admin_delete_user') }}" method="POST" style="margin:0;" onsubmit="return confirm('WARNING: This will permanently delete user {{ u.username }} and all their data. Continue?');">
+                                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                                    <button type="submit" class="btn btn-glass btn-sm" style="padding: 0.4rem 0.6rem; border-color: rgba(239,68,68,0.2);">
+                                        <i class="ph-bold ph-trash-simple text-danger"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="text-muted" style="font-size: 0.75rem;"><i class="ph-bold ph-lock"></i> Locked</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% else %}
                         <tr><td colspan="6" class="text-center text-muted">No users found.</td></tr>

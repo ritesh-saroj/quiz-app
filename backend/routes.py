@@ -169,6 +169,40 @@ def admin_delete_question():
         flash("Question deleted permanently.", "success")
     return redirect(url_for("main.admin_dashboard"))
 
+@main.route("/admin/user/delete", methods=["POST"])
+@admin_required
+def admin_delete_user():
+    # Admin deletion of users
+    u_id = request.form.get("user_id", type=int)
+    admin = get_current_user()
+    
+    if not u_id:
+        flash("Invalid user ID.", "error")
+        return redirect(url_for("main.admin_dashboard"))
+        
+    if u_id == admin.id:
+        flash("You cannot delete your own admin account from here.", "warning")
+        return redirect(url_for("main.admin_dashboard"))
+        
+    # Manual cascading delete for integrity
+    try:
+        # Delete dependencies
+        execute_db("DELETE FROM party_members WHERE user_id = ?", (u_id,))
+        execute_db("DELETE FROM parties WHERE host_id = ?", (u_id,))
+        execute_db("DELETE FROM friends WHERE user_id = ? OR friend_id = ?", (u_id, u_id))
+        execute_db("DELETE FROM user_progress WHERE user_id = ?", (u_id,))
+        execute_db("DELETE FROM leaderboard WHERE user_id = ?", (u_id,))
+        execute_db("DELETE FROM quiz_results WHERE user_id = ?", (u_id,))
+        
+        # Finally delete the user
+        execute_db("DELETE FROM users WHERE id = ?", (u_id,))
+        
+        flash(f"User #{u_id} and all related data have been permanently deleted.", "success")
+    except Exception as e:
+        flash(f"Error deleting user: {str(e)}", "error")
+        
+    return redirect(url_for("main.admin_dashboard"))
+
 
 # Public Routes
 
