@@ -1,10 +1,4 @@
-"""
-database.py — SQLite connection and query helpers.
-
-All database interaction in the app should go through this module.
-The connection is stored on Flask's `g` object so one connection is
-reused for the lifetime of a single request.
-"""
+# SQLite database helpers
 
 from flask import g, current_app
 import sqlite3
@@ -17,13 +11,11 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 
-# ---------------------------------------------------------------------------
-# Connection helpers
-# ---------------------------------------------------------------------------
+# DB Connection helpers
 
 
 def get_db():
-    """Return the SQLite connection for the current request context."""
+    # Get DB connection
     if "db" not in g:
         db_path = current_app.config["DATABASE_PATH"]
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
@@ -33,17 +25,14 @@ def get_db():
 
 
 def close_db(e=None):
-    """Close the DB connection at the end of a request."""
+    # Close DB connection
     db = g.pop("db", None)
     if db is not None:
         db.close()
 
 
 def init_db(app):
-    """
-    Create tables from schema.sql (run once at startup).
-    Call this from app.py after creating the Flask app.
-    """
+    # Initialize database tables
     schema_path = app.config["SCHEMA_PATH"]
     db_path = app.config["DATABASE_PATH"]
 
@@ -98,19 +87,11 @@ def init_db(app):
     app.teardown_appcontext(close_db)
 
 
-# ---------------------------------------------------------------------------
-# Generic query helpers
-# ---------------------------------------------------------------------------
+# SQL Query helpers
 
 
 def query_db(sql, args=(), one=False):
-    """
-    Execute a SELECT query and return results.
-
-    :param sql:  SQL string (use ? placeholders)
-    :param args: tuple of bind parameters
-    :param one:  if True, return a single Row (or None); else return a list
-    """
+    # Execute SELECT query
     cur = get_db().execute(sql, args)
     rv = cur.fetchall()
     cur.close()
@@ -118,11 +99,7 @@ def query_db(sql, args=(), one=False):
 
 
 def execute_db(sql, args=()):
-    """
-    Execute an INSERT / UPDATE / DELETE statement.
-
-    Returns the last inserted row ID.
-    """
+    # Execute DML query
     db = get_db()
     cur = db.execute(sql, args)
     db.commit()

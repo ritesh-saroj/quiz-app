@@ -1,13 +1,4 @@
-"""
-quiz_engine.py — Quiz lifecycle: load, randomize, validate, score, store.
-
-Flow:
-    1. start_quiz()         — fetch questions, shuffle, store in session
-    2. get_current_question() — return the question the player is on
-    3. submit_answer()      — validate one answer, advance index
-    4. finish_quiz()        — calculate score, persist result, award XP
-    5. get_user_results()   — fetch historical results for a user
-"""
+# Quiz lifecycle management
 
 import random
 import time
@@ -18,9 +9,7 @@ from models import Question, QuizResult
 from gamification import calculate_xp, award_xp
 from leaderboard import update_leaderboard
 
-# ---------------------------------------------------------------------------
-# Session keys
-# ---------------------------------------------------------------------------
+# Session keys config
 SESSION_QUESTION_IDS = "quiz_question_ids"  # list of question IDs in play
 # which question we're on (0-based)
 SESSION_CURRENT_INDEX = "quiz_current_index"
@@ -28,20 +17,11 @@ SESSION_ANSWERS = "quiz_answers"  # {question_id: chosen_option}
 SESSION_NUM_QUESTIONS = "quiz_num_questions"
 
 
-# ---------------------------------------------------------------------------
-# 1. Start a new quiz
-# ---------------------------------------------------------------------------
+# Start new quiz logic
 
 
 def start_quiz(num_questions: int = 10, category: str = "General Knowledge", stage: int = 1, level: int = 1) -> dict:
-    """
-    Pick `num_questions` random questions from the DB matching the category,
-    stage, and level, shuffle them, and store the question IDs in the session.
-
-    Returns:
-        {"success": True,  "total": <int>}
-        {"success": False, "error": "<message>"}
-    """
+    # Pick random questions
     rows = query_db(
         "SELECT id FROM questions WHERE category = ? AND stage = ? AND level = ?",
         (category, stage, level)
@@ -75,16 +55,11 @@ def start_quiz(num_questions: int = 10, category: str = "General Knowledge", sta
     return {"success": True, "total": len(selected)}
 
 
-# ---------------------------------------------------------------------------
-# 2. Get the current question
-# ---------------------------------------------------------------------------
+# Get quiz question
 
 
 def get_current_question() -> Question | None:
-    """
-    Return the Question object for the current quiz position, or None if
-    the quiz hasn't started or is finished.
-    """
+    # Current question object
     ids = session.get(SESSION_QUESTION_IDS)
     index = session.get(SESSION_CURRENT_INDEX, 0)
 
@@ -99,7 +74,7 @@ def get_current_question() -> Question | None:
 
 
 def get_quiz_progress() -> dict:
-    """Return current index and total questions for the progress bar."""
+    # Quiz progress info
     ids = session.get(SESSION_QUESTION_IDS, [])
     index = session.get(SESSION_CURRENT_INDEX, 0)
     deadline = session.get("quiz_deadline", int(time.time()) + 30)
@@ -111,25 +86,11 @@ def get_quiz_progress() -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# 3. Submit a single answer
-# ---------------------------------------------------------------------------
+# Submit answer logic
 
 
 def submit_answer(question_id: int, chosen_option: str, user_id: int = None) -> dict:
-    """
-    Record the player's chosen option for `question_id` and advance to
-    the next question.
-
-    `chosen_option` should be one of: 'A', 'B', 'C', 'D'
-
-    Returns:
-        {
-            "correct":       <bool>,
-            "correct_answer": <str>,
-            "is_last":       <bool>,   # True if this was the final question
-        }
-    """
+    # Record player answer
     row = query_db(
         "SELECT correct_answer FROM questions WHERE id = ?",
         (question_id,),
@@ -172,18 +133,11 @@ def submit_answer(question_id: int, chosen_option: str, user_id: int = None) -> 
     }
 
 
-# ---------------------------------------------------------------------------
-# 4. Finish quiz — score, persist, award XP
-# ---------------------------------------------------------------------------
+# Finish quiz logic
 
 
 def finish_quiz(user_id: int) -> dict:
-    """
-    Calculate the final score from session answers, store the result in
-    `quiz_results`, award XP, and clear the quiz session keys.
-
-    Returns a rich result dict ready to pass to the result template.
-    """
+    # Score and award XP
     ids = session.get(SESSION_QUESTION_IDS, [])
     answers = session.get(SESSION_ANSWERS, {})
     active_party_room = session.get("active_party_room")
@@ -301,13 +255,11 @@ def finish_quiz(user_id: int) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# 5. Fetch historical results
-# ---------------------------------------------------------------------------
+# Fetch user results
 
 
 def get_user_results(user_id: int, limit: int = 10) -> list[QuizResult]:
-    """Return the most recent `limit` quiz results for a user."""
+    # Get recent results
     rows = query_db(
         """
         SELECT * FROM quiz_results
@@ -321,7 +273,7 @@ def get_user_results(user_id: int, limit: int = 10) -> list[QuizResult]:
 
 
 def get_result_by_id(result_id: int) -> QuizResult | None:
-    """Fetch a single quiz result by its ID."""
+    # Get result by ID
     row = query_db(
         "SELECT * FROM quiz_results WHERE id = ?", (result_id,), one=True
     )

@@ -55,7 +55,7 @@ main = Blueprint("main", __name__)
 
 @main.route("/login/google")
 def google_login():
-    """Redirect to Google's OAuth 2.0 consent screen."""
+    # Google Login redirect
     if not os.environ.get("GOOGLE_CLIENT_ID"):
         flash("Google Login is not configured. Please set GOOGLE_CLIENT_ID.", "error")
         return redirect(url_for("main.login"))
@@ -65,7 +65,7 @@ def google_login():
 
 @main.route("/login/google/authorize")
 def google_authorize():
-    """Handle the callback from Google and sign in/register the user."""
+    # Google Login callback
     token = google.authorize_access_token()
     user_info = token.get('userinfo')
     if not user_info:
@@ -87,9 +87,7 @@ def google_authorize():
     flash("Could not sign in with Google.", "error")
     return redirect(url_for("main.login"))
 
-# ---------------------------------------------------------------------------
-# Context processor — injects `current_user` into every template
-# ---------------------------------------------------------------------------
+# Inject current user
 
 
 @main.context_processor
@@ -97,14 +95,12 @@ def inject_user():
     return {"current_user": get_current_user()}
 
 
-# ---------------------------------------------------------------------------
 # Admin Routes
-# ---------------------------------------------------------------------------
 
 @main.route("/admin")
 @admin_required
 def admin_dashboard():
-    """Admin dashboard for stats and content management."""
+    # Admin dashboard stats
     # Fetch Stats
     total_users = query_db("SELECT COUNT(*) as count FROM users", one=True)["count"]
     total_quizzes = query_db("SELECT COUNT(*) as count FROM quiz_results", one=True)["count"]
@@ -130,7 +126,7 @@ def admin_dashboard():
 @main.route("/admin/question/add", methods=["POST"])
 @admin_required
 def admin_add_question():
-    """Add a new question to the database."""
+    # Add new question
     execute_db("""
         INSERT INTO questions (question_text, option_a, option_b, option_c, option_d, correct_answer, category, stage, level)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -147,7 +143,7 @@ def admin_add_question():
 @main.route("/admin/question/edit/<int:q_id>", methods=["POST"])
 @admin_required
 def admin_edit_question(q_id):
-    """Update an existing question."""
+    # Update existing question
     execute_db("""
         UPDATE questions SET 
             question_text = ?, option_a = ?, option_b = ?, option_c = ?, 
@@ -166,7 +162,7 @@ def admin_edit_question(q_id):
 @main.route("/admin/question/delete", methods=["POST"])
 @admin_required
 def admin_delete_question():
-    """Delete a question."""
+    # Delete question logic
     q_id = request.form.get("question_id", type=int)
     if q_id:
         execute_db("DELETE FROM questions WHERE id = ?", (q_id,))
@@ -174,20 +170,18 @@ def admin_delete_question():
     return redirect(url_for("main.admin_dashboard"))
 
 
-# ---------------------------------------------------------------------------
-# Public routes
-# ---------------------------------------------------------------------------
+# Public Routes
 
 
 @main.route("/")
 def home():
-    """Home / landing page."""
+    # Home landing page
     return render_template("home.html")
 
 
 @main.route("/login", methods=["GET", "POST"])
 def login():
-    """Login page."""
+    # Login page view
     if "user_id" in session:
         return redirect(url_for("main.dashboard"))
 
@@ -205,7 +199,7 @@ def login():
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
-    """Registration page."""
+    # Registration page view
     if "user_id" in session:
         return redirect(url_for("main.dashboard"))
 
@@ -226,7 +220,7 @@ def register():
 
 @main.route("/leaderboard")
 def leaderboard():
-    """Global leaderboard — publicly viewable."""
+    # Public global leaderboard
     rows = query_db("""
         SELECT u.*,
                RANK() OVER (ORDER BY u.xp DESC) AS rank
@@ -240,15 +234,13 @@ def leaderboard():
     return render_template("leaderboard.html", entries=entries)
 
 
-# ---------------------------------------------------------------------------
-# Protected routes (require login)
-# ---------------------------------------------------------------------------
+# Protected Routes
 
 
 @main.route("/dashboard")
 @login_required
 def dashboard():
-    """User dashboard with recent results and stats."""
+    # User stats dashboard
     user = get_current_user()
     results = get_user_results(user.id, limit=10)
     streak = get_current_streak(user.id)
@@ -267,12 +259,12 @@ def dashboard():
     )
 
 
-# --- Quiz routes ---
+# Quiz Routes
 
 @main.route("/clash")
 @login_required
 def clash():
-    """Clash page with multiplayer, quiz start, and friends."""
+    # Multiplayer clash page
     user = get_current_user()
     categories = ["Programming", "Science", "Mathematics", "General Knowledge", "Python", "Cybersecurity"]
 
@@ -340,7 +332,7 @@ def clash():
 @main.route("/quiz/start", methods=["POST"])
 @login_required
 def quiz_start():
-    """Start a new quiz session and redirect to the first question."""
+    # Start quiz session
     try:
         num = int(request.form.get("num_questions", 10))
         category = request.form.get("category", "General Knowledge")
@@ -364,7 +356,7 @@ def quiz_start():
 @main.route("/quiz", methods=["GET"])
 @login_required
 def quiz():
-    """Display the current quiz question."""
+    # Show current question
     question = get_current_question()
     if question is None:
         # No active quiz — redirect to dashboard
@@ -377,7 +369,7 @@ def quiz():
 @main.route("/quiz/answer", methods=["POST"])
 @login_required
 def quiz_answer():
-    """Handle answer submission (supports both form POST and AJAX JSON)."""
+    # Handle answer submission
     question_id = request.form.get("question_id", type=int)
     chosen = request.form.get("answer", "")
     user = get_current_user()
@@ -400,7 +392,7 @@ def quiz_answer():
 @main.route("/quiz/finish")
 @login_required
 def quiz_finish():
-    """Score the quiz, persist the result, award XP, show result page."""
+    # Finish and score
     user = get_current_user()
     result = finish_quiz(user.id)
     if not result["success"]:
@@ -437,7 +429,7 @@ def quiz_finish():
 @main.route("/result")
 @login_required
 def result():
-    """Quiz result page."""
+    # Quiz result view
     data = session.pop("last_result", None)
     if data is None:
         return redirect(url_for("main.dashboard"))
@@ -447,7 +439,7 @@ def result():
 @main.route("/profile")
 @login_required
 def profile():
-    """User profile page with full history and stats."""
+    # User profile view
     user = get_current_user()
     results = get_user_results(user.id, limit=20)
     streak = get_current_streak(user.id)
@@ -472,7 +464,7 @@ def profile():
 @main.route("/profile/update", methods=["POST"])
 @login_required
 def profile_update():
-    """Handle isolated profile settings updates based on action."""
+    # Update profile settings
     user = get_current_user()
     action = request.form.get("action")
 
@@ -558,7 +550,7 @@ def profile_update():
 @main.route("/api/search_users")
 @login_required
 def search_users():
-    """Live search for users by username."""
+    # Live user search
     q = request.args.get("q", "").strip()
     if not q or len(q) < 2:
         return jsonify([])
@@ -576,7 +568,7 @@ def search_users():
 @main.route("/friend/add", methods=["POST"])
 @login_required
 def add_friend():
-    """Add a player to the user's friends list."""
+    # Add user friend
     friend_username = request.form.get("friend_username", "").strip()
     user = get_current_user()
     
@@ -638,13 +630,13 @@ def remove_friend():
     return redirect(url_for("main.clash"))
 
 def generate_room_code(length=6):
-    """Generate a random alphanumeric 6-character room code."""
+    # Generate room code
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 @main.route("/party/create", methods=["POST"])
 @login_required
 def create_party():
-    """Create a multiplayer party room."""
+    # Create party room
     user = get_current_user()
     try:
         party_size = int(request.form.get("party_size", 2))
@@ -716,7 +708,7 @@ def create_party():
 @main.route("/party/join", methods=["POST"])
 @login_required
 def join_party():
-    """Join an existing multiplayer party."""
+    # Join party room
     room_code = request.form.get("room_code", "").strip().upper()
     user = get_current_user()
     
@@ -743,7 +735,7 @@ def join_party():
 @main.route("/party/<room_code>")
 @login_required
 def party_lobby(room_code):
-    """Display the waiting room for a specific party."""
+    # Party lobby view
     user = get_current_user()
     party = query_db("SELECT * FROM parties WHERE room_code = ?", (room_code,), one=True)
     
@@ -770,7 +762,7 @@ def party_lobby(room_code):
 @main.route("/party/<room_code>/setup")
 @login_required
 def party_quiz_setup(room_code):
-    """Sets up the session for a party quiz and redirects to the quiz page."""
+    # Setup party quiz
     user = get_current_user()
     party = query_db("SELECT * FROM parties WHERE room_code = ?", (room_code,), one=True)
     
@@ -811,7 +803,7 @@ def party_quiz_setup(room_code):
 @main.route("/party/<room_code>/start", methods=["POST"])
 @login_required
 def start_party_match(room_code):
-    """Host triggers the start of the match."""
+    # Start party match
     user = get_current_user()
     party = query_db("SELECT * FROM parties WHERE room_code = ?", (room_code,), one=True)
     
@@ -826,10 +818,7 @@ def start_party_match(room_code):
 @main.route("/party/<room_code>/results")
 @login_required
 def party_results(room_code):
-    """
-    Shows a waiting screen after a player finishes a party match,
-    before showing the final podium.
-    """
+    # Party result view
     party = query_db("SELECT * FROM parties WHERE room_code = ?", (room_code,), one=True)
     if not party:
         flash("Party not found.", "error")
@@ -841,7 +830,7 @@ def party_results(room_code):
 @main.route("/party/<room_code>/progress")
 @login_required
 def party_progress(room_code):
-    """Return real-time progress for players in the given party."""
+    # Real-time party progress
     rows = query_db("""
         SELECT u.username, u.avatar_url, pm.current_index, pm.score
         FROM party_members pm
@@ -856,7 +845,7 @@ def party_progress(room_code):
 @main.route("/profile/delete", methods=["POST"])
 @login_required
 def delete_account():
-    """Permanently delete user account and associated records."""
+    # Delete user account
     user = get_current_user()
     # Clean up all records referencing the user
     execute_db("DELETE FROM quiz_results WHERE user_id = ?", (user.id,))
@@ -873,6 +862,6 @@ def delete_account():
 
 @main.route("/logout")
 def logout():
-    """Clear session and redirect to home."""
+    # Logout user logic
     logout_user()
     return redirect(url_for("main.home"))

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="glass fade-in hover-glow" style="padding:2.5rem;margin-top:1.5rem;">
 
-    <!-- ── Profile Header ────────────────────────────────────────── -->
+    <!-- Profile Header -->
     <div class="profile-header">
         <div class="avatar profile-avatar" data-name="{{ user.username }}">
             {% if user.avatar_url %}<img src="{{ user.avatar_url }}" alt="Profile Photo">{% else %}{{ user.username[0]|upper }}{% endif %}
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <!-- ── Stats Grid ─────────────────────────────────────────────── -->
+    <!-- Stats Grid -->
     <div class="dashboard-grid mb-4">
         <div class="glass stat-card hover-glow">
             <div class="stat-icon text-primary"><i class="ph-fill ph-lightning"></i></div>
@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    <!-- ── Achievement Badges ─────────────────────────────────────── -->
+    <!-- Achievement Badges -->
     <h3 class="history-title"><i class="ph-fill ph-medal text-warning"></i> Achievement Badges</h3>
     <div class="badges-grid mb-4">
         <div class="badge-card {% if badges.first_quiz %}earned{% endif %}" title="Complete your first quiz">
@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <!-- ── Quiz History ───────────────────────────────────────────── -->
+    <!-- Quiz History -->
     <h3 class="history-title"><i class="ph-fill ph-clock-counter-clockwise text-primary"></i> Full Quiz History</h3>
     {% if results %}
     <div class="table-container mb-4">
@@ -114,7 +114,7 @@
     </div>
     {% endif %}
 
-    <!-- ── Account Settings ───────────────────────────────────────── -->
+    <!-- Account Settings -->
     <h3 class="history-title mt-4"><i class="ph-fill ph-user-gear text-primary"></i> Account Settings</h3>
 
     <!-- Photo upload -->
@@ -228,7 +228,7 @@
         </div>
     </div>
 
-    <!-- ── Danger Zone ────────────────────────────────────────────── -->
+    <!-- Danger Zone -->
     <div class="glass hover-glow" style="padding:1.75rem; margin-top: 1.5rem; border-color: var(--danger-border); background: linear-gradient(135deg, rgba(239,68,68,0.05), var(--card-inner-bg));">
         <h4 style="margin-bottom:0.5rem;font-size:1rem;color:var(--danger);display:flex;align-items:center;gap:8px;">
             <i class="ph-fill ph-warning-octagon"></i> Danger Zone

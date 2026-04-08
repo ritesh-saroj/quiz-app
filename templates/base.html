@@ -120,7 +120,7 @@
     {% block extra_js %}{% endblock %}
 
     <script>
-    // ── Theme toggle ──────────────────────────────────────────
+    // Theme toggle logic
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon   = document.getElementById('theme-icon');
     const themeToggleMobile = document.getElementById('theme-toggle-mobile');
@@ -145,7 +145,7 @@
     themeToggle && themeToggle.addEventListener('click', doThemeToggle);
     themeToggleMobile && themeToggleMobile.addEventListener('click', doThemeToggle);
 
-    // ── Hamburger ─────────────────────────────────────────────
+    // Hamburger menu logic
     const hamburger   = document.getElementById('hamburger');
     const mobileMenu  = document.getElementById('mobile-menu');
     hamburger && hamburger.addEventListener('click', () => {
@@ -162,7 +162,7 @@
         });
     });
 
-    // ── Avatar colours ────────────────────────────────────────
+    // Avatar color logic
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.avatar, .player-avatar').forEach(el => {
             if (!el.querySelector('img')) {
@@ -177,7 +177,7 @@
         });
     });
 
-    // ── Password visibility toggle ────────────────────────────
+    // Password toggle logic
     document.addEventListener('click', function(e) {
         if (e.target && e.target.classList.contains('toggle-password')) {
             const wrapper = e.target.closest('.input-with-icon');

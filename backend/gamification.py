@@ -1,14 +1,8 @@
-"""
-gamification.py — XP calculation, level system, and streak logic.
-
-Called by quiz_engine.py after a quiz is submitted to reward the player.
-"""
+# User XP and Streaks
 
 from database import query_db, execute_db
 
-# ---------------------------------------------------------------------------
-# XP & Level configuration
-# ---------------------------------------------------------------------------
+# XP Level Config
 
 # XP awarded per correct answer
 XP_PER_CORRECT = 10
@@ -27,14 +21,14 @@ BONUS_TIERS = [
 
 
 def xp_required_for_level(level: int) -> int:
-    """Return cumulative XP needed to *reach* `level`."""
+    # XP needed for level
     if level <= 1:
         return 0
     return int(100 * (level - 1) ** 1.5)
 
 
 def level_for_xp(total_xp: int) -> int:
-    """Determine current level from total XP."""
+    # Level for XP
     level = 1
     while xp_required_for_level(level + 1) <= total_xp:
         level += 1
@@ -42,7 +36,7 @@ def level_for_xp(total_xp: int) -> int:
 
 
 def get_rank_title(level: int) -> str:
-    """Determine user rank based on their level."""
+    # User rank title
     if level < 3: return "Beginner"
     elif level < 6: return "Learner"
     elif level < 10: return "Challenger"
@@ -51,23 +45,11 @@ def get_rank_title(level: int) -> str:
     else: return "Legend"
 
 
-# ---------------------------------------------------------------------------
 # XP calculation
-# ---------------------------------------------------------------------------
 
 
 def calculate_xp(score: int, total_questions: int, has_boost: bool = False) -> dict:
-    """
-    Calculate XP earned for a quiz result.
-
-    Returns:
-        {
-            "base_xp":  <int>,    # XP from correct answers
-            "bonus_xp": <int>,    # bonus for high score percentage
-            "total_xp": <int>,    # base + bonus
-            "percentage": <float>
-        }
-    """
+    # Calculate quiz XP
     if total_questions == 0:
         return {"base_xp": 0, "bonus_xp": 0, "total_xp": 0, "percentage": 0.0}
 
@@ -92,23 +74,11 @@ def calculate_xp(score: int, total_questions: int, has_boost: bool = False) -> d
     }
 
 
-# ---------------------------------------------------------------------------
-# Apply XP to user (update DB)
-# ---------------------------------------------------------------------------
+# Award XP logic
 
 
 def award_xp(user_id: int, xp_earned: int) -> dict:
-    """
-    Add `xp_earned` to the user's total XP and recalculate their level.
-
-    Returns:
-        {
-            "new_xp":       <int>,
-            "new_level":    <int>,
-            "leveled_up":   <bool>,
-            "old_level":    <int>,
-        }
-    """
+    # Add XP to user
     row = query_db(
         "SELECT xp, level FROM users WHERE id = ?", (user_id,), one=True
     )
@@ -133,16 +103,11 @@ def award_xp(user_id: int, xp_earned: int) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# Streak helpers (stored in the quiz_results table via date field)
-# ---------------------------------------------------------------------------
+# Streak helpers
 
 
 def get_current_streak(user_id: int) -> int:
-    """
-    Return the number of consecutive days the user has completed at least
-    one quiz, ending today (or yesterday).
-    """
+    # Get quiz streak
     from datetime import date, timedelta
 
     rows = query_db(

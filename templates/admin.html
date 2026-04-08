@@ -29,14 +29,14 @@
         </div>
     </div>
 
-    <!-- ── Tabs Navigation ────────────────────────────────────────── -->
+    <!-- Tab Navigation -->
     <div class="admin-nav">
         <button class="admin-tab active" data-target="pane-overview"><i class="ph-bold ph-squares-four"></i> Overview</button>
         <button class="admin-tab" data-target="pane-questions"><i class="ph-bold ph-database"></i> Question Bank</button>
         <button class="admin-tab" data-target="pane-players"><i class="ph-bold ph-users"></i> Players Directory</button>
     </div>
 
-    <!-- ── PANE 1: OVERVIEW ──────────────────────────────────────── -->
+    <!-- Overview Pane -->
     <div id="pane-overview" class="admin-pane active">
         <div class="dashboard-grid mb-4">
             <div class="glass stat-card hover-glow" style="border-top: 2px solid var(--primary);">
@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <!-- ── PANE 2: QUESTION BANK ─────────────────────────────────── -->
+    <!-- Question Pane -->
     <div id="pane-questions" class="admin-pane">
         <div class="admin-split-layout">
             
@@ -158,7 +158,7 @@
         </div>
     </div>
 
-    <!-- ── PANE 3: PLAYERS DIRECTORY ─────────────────────────────── -->
+    <!-- Players Pane -->
     <div id="pane-players" class="admin-pane">
         <div class="glass hover-glow" style="padding: 2rem; border-radius: 20px;">
             <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
@@ -212,7 +212,7 @@
 
 {% block extra_js %}
 <script>
-// ── Tab Switching Logic ────────────────────────────────────
+// Tab Switching Logic
 document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.addEventListener('click', () => {
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -234,7 +234,7 @@ if (savedTab) {
     if (btn) btn.click();
 }
 
-// ── Edit Form Logic ────────────────────────────────────────
+// Edit Form Logic
 function editQuestion(btn) {
     const qData = JSON.parse(btn.getAttribute('data-question'));
     const form = document.getElementById('question-form');

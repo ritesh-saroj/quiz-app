@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 def show_database():
-    # Make path relative to the script file for robustness
+    # Setup path
     script_dir = os.path.dirname(os.path.abspath(__file__))
     db_path = os.path.join(script_dir, 'database', 'quiz_app.db')
 
@@ -11,7 +11,7 @@ def show_database():
         return
 
     try:
-        # Use 'with' statement for automatic connection management
+        # Open connection
         with sqlite3.connect(db_path) as conn:
             cursor = conn.cursor()
 

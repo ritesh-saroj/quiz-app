@@ -1,31 +1,13 @@
-"""
-leaderboard.py — Leaderboard management.
-
-Responsibilities:
-    - Rank users by their cumulative XP (stored on the users table)
-    - Upsert a user's best score into the leaderboard table after a quiz
-    - Expose helpers for the leaderboard page and profile page
-
-The `leaderboard` table acts as a materialised cache of
-(user_id, best_single_quiz_score, rank).  Global ranking by XP is
-derived live from the `users` table so it is always up-to-date.
-"""
+# Leaderboard ranking logic
 
 from database import query_db, execute_db
 from models import LeaderboardEntry
 
-# ---------------------------------------------------------------------------
-# Fetching top players
-# ---------------------------------------------------------------------------
+# Fetch top players
 
 
 def get_top_players(limit: int = 20) -> list[dict]:
-    """
-    Return the top `limit` players ranked by their total XP.
-
-    Each dict contains:
-        rank, username, xp, level, best_score, quizzes_played
-    """
+    # Get top players ranked by XP
     rows = query_db(
         """
         SELECT
@@ -45,12 +27,7 @@ def get_top_players(limit: int = 20) -> list[dict]:
 
 
 def get_user_rank(user_id: int) -> dict | None:
-    """
-    Return rank information for a single user.
-
-    Returns a dict with keys: rank, username, xp, level, quizzes_played, best_score
-    or None if the user doesn't exist.
-    """
+    # Get user rank info
     row = query_db(
         """
         SELECT
@@ -78,18 +55,11 @@ def get_user_rank(user_id: int) -> dict | None:
     return dict(row) if row else None
 
 
-# ---------------------------------------------------------------------------
-# Update leaderboard after a quiz
-# ---------------------------------------------------------------------------
+# Update leaderboard scores
 
 
 def update_leaderboard(user_id: int, quiz_score: int) -> None:
-    """
-    Upsert the user's best quiz score in the `leaderboard` table, then
-    refresh the stored rank for the top 20 players.
-
-    Call this from quiz_engine.finish_quiz() after every completed quiz.
-    """
+    # Update user best score
     # Upsert: keep the higher of the stored score vs. the new score
     existing = query_db(
         "SELECT id, score FROM leaderboard WHERE user_id = ?",
@@ -113,11 +83,7 @@ def update_leaderboard(user_id: int, quiz_score: int) -> None:
 
 
 def _refresh_ranks() -> None:
-    """
-    Recalculate and persist the `rank` column in the leaderboard table.
-    Uses XP (from users) as the primary sort criterion, consistent with
-    get_top_players().
-    """
+    # Refresh leaderboard ranks
     rows = query_db("""
         SELECT lb.id
         FROM   leaderboard lb
@@ -131,16 +97,11 @@ def _refresh_ranks() -> None:
         )
 
 
-# ---------------------------------------------------------------------------
-# Convenience: LeaderboardEntry model wrappers
-# ---------------------------------------------------------------------------
+# Model wrappers
 
 
 def get_top_entries(limit: int = 20) -> list[LeaderboardEntry]:
-    """
-    Return top leaderboard rows as LeaderboardEntry model objects
-    (joins leaderboard table with users for username).
-    """
+    # Get top entries as objects
     rows = query_db(
         """
         SELECT lb.user_id, lb.score, lb.rank, u.username

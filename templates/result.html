@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Confetti for high scores -->
+<!-- Confetti -->
 {% if result.percentage >= 80 %}
 <div class="confetti-container" id="confetti-container"></div>
 {% endif %}
@@ -10,7 +10,7 @@
     <h1 class="text-gradient" style="font-size:2.6rem;margin-bottom:.5rem;">Quiz Completed!</h1>
     <p style="margin-bottom:2.5rem;">Let's see how you did.</p>
 
-    <!-- ── Animated score ring ──────────────────────────────────── -->
+    <!-- Score ring -->
     <div class="result-score-ring" id="score-ring">
         <svg width="200" height="200" viewBox="0 0 200 200">
             <defs>

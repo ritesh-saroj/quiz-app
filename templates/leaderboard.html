@@ -69,7 +69,7 @@ html.light-mode .lb-row { background: rgba(255,255,255,0.6); }
 {% block content %}
 <div class="lb-wrapper fade-in" style="padding: 2rem 0;">
     
-    <!-- ── Header ────────────────────────────────────────────── -->
+    <!-- Header -->
     <div class="lb-header">
         <div class="advanced-trophy-wrapper">
             <div class="at-glow-1"></div>
@@ -92,7 +92,7 @@ html.light-mode .lb-row { background: rgba(255,255,255,0.6); }
 
     {% if entries %}
 
-        <!-- ── Dynamic Top 3 Podium ────────────────────────────── -->
+        <!-- Top 3 Podium -->
         {% set top3 = entries[:3] %}
         <div class="podium-showcase">
 
@@ -137,7 +137,7 @@ html.light-mode .lb-row { background: rgba(255,255,255,0.6); }
             {% endif %}
         </div>
 
-        <!-- ── Complete Rankings List ──────────────────────────── -->
+        <!-- Rankings List -->
         <div class="lb-list">
             {% for e in entries %}
             <div class="lb-row {% if current_user and current_user.username == e.username %}is-current-user{% endif %}">

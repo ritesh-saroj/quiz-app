@@ -1,14 +1,8 @@
-"""
-models.py — Python model classes that wrap SQLite row data.
-
-These are plain Python classes (no ORM).  They accept a sqlite3.Row
-(or any dict-like object) and expose typed attributes for cleaner
-template and business-logic access.
-"""
+# Database model wrappers
 
 
 class User:
-    """Represents a row from the `users` table."""
+    # User model
 
     def __init__(self, row):
         self.id = row["id"]
@@ -24,7 +18,7 @@ class User:
 
 
 class Question:
-    """Represents a row from the `questions` table."""
+    # Question model
 
     def __init__(self, row):
         self.id = row["id"]
@@ -37,7 +31,7 @@ class Question:
 
     @property
     def options(self):
-        """Return options as a labelled dict for easy template iteration."""
+        # Options as dict
         return {
             "A": self.option_a,
             "B": self.option_b,
@@ -50,7 +44,7 @@ class Question:
 
 
 class QuizResult:
-    """Represents a row from the `quiz_results` table."""
+    # QuizResult model
 
     def __init__(self, row):
         self.id = row["id"]
@@ -70,7 +64,7 @@ class QuizResult:
 
 
 class LeaderboardEntry:
-    """Represents a row from the `leaderboard` table joined with `users`."""
+    # LeaderboardEntry model
 
     def __init__(self, row):
         self.user_id = row["user_id"]

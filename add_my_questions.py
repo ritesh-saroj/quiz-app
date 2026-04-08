@@ -2,12 +2,12 @@ import sqlite3
 import os
 
 def setup_real_questions():
-    # Connect to your existing database
+    # Connect to database
     db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database', 'quiz_app.db')
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # 0. Ensure columns exist to prevent crashes
+    # Ensure columns
     try:
         cursor.execute("ALTER TABLE questions ADD COLUMN category TEXT")
         cursor.execute("ALTER TABLE questions ADD COLUMN stage INTEGER")
@@ -15,13 +15,12 @@ def setup_real_questions():
     except sqlite3.OperationalError:
         pass  # Columns already exist
 
-    # 1. WIPE OUT ALL FAKE QUESTIONS
+    # Wipe questions
     cursor.execute("DELETE FROM questions")
     
-    # 2. ADD REAL GENERAL KNOWLEDGE QUESTIONS (Stage 1: Levels 1, 2, and 3)
-    # Format: (Question, Opt A, Opt B, Opt C, Opt D, Correct Answer, Category, Stage, Level)
+    # Add questions
     gk_questions = [
-        # --- STAGE 1, LEVEL 1 (Easy - 15 Questions) ---
+        # Stage 1, Level 1
         ("What is the capital of France?", "London", "Berlin", "Paris", "Madrid", "C", "General Knowledge", 1, 1),
         ("Which planet is known as the Red Planet?", "Earth", "Mars", "Jupiter", "Venus", "B", "General Knowledge", 1, 1),
         ("What is the largest ocean on Earth?", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean", "D", "General Knowledge", 1, 1),
@@ -38,7 +37,7 @@ def setup_real_questions():
         ("What is the largest planet in our solar system?", "Saturn", "Jupiter", "Neptune", "Uranus", "B", "General Knowledge", 1, 1),
         ("What is the hardest natural substance on Earth?", "Gold", "Iron", "Diamond", "Platinum", "C", "General Knowledge", 1, 1),
 
-        # --- STAGE 1, LEVEL 2 (Medium - 15 Questions) ---
+        # Stage 1, Level 2
         ("What is the capital of Australia?", "Sydney", "Melbourne", "Canberra", "Perth", "C", "General Knowledge", 1, 2),
         ("Which is the smallest country in the world?", "Monaco", "Vatican City", "San Marino", "Liechtenstein", "B", "General Knowledge", 1, 2),
         ("Who invented the telephone?", "Thomas Edison", "Nikola Tesla", "Alexander Graham Bell", "Albert Einstein", "C", "General Knowledge", 1, 2),
@@ -55,7 +54,7 @@ def setup_real_questions():
         ("Which is the largest hot desert in the world?", "Gobi", "Sahara", "Kalahari", "Atacama", "B", "General Knowledge", 1, 2),
         ("How many bones are there in the adult human body?", "206", "208", "210", "212", "A", "General Knowledge", 1, 2),
 
-        # --- STAGE 1, LEVEL 3 (Hard - 15 Questions) ---
+        # Stage 1, Level 3
         ("Who was the first woman to win a Nobel Prize?", "Mother Teresa", "Rosa Parks", "Marie Curie", "Ada Lovelace", "C", "General Knowledge", 1, 3),
         ("What is the largest moon of Saturn?", "Europa", "Ganymede", "Callisto", "Titan", "D", "General Knowledge", 1, 3),
         ("Who is known as the father of modern physics?", "Isaac Newton", "Albert Einstein", "Galileo Galilei", "Niels Bohr", "B", "General Knowledge", 1, 3),

@@ -1,9 +1,4 @@
-"""
-auth.py — Authentication logic: registration, login, logout.
-
-Uses werkzeug.security for password hashing and Flask's session
-for keeping a user logged in across requests.
-"""
+# User Authentication Logic
 
 import secrets
 import random
@@ -15,15 +10,10 @@ from database import query_db, execute_db
 from models import User
 
 
-# ---------------------------------------------------------------------------
-# Google OAuth Login / Register
-# ---------------------------------------------------------------------------
+# Google OAuth logic
 
 def login_or_register_google_user(email: str, name: str, avatar_url: str) -> dict:
-    """
-    Check if email exists. If so, log them in.
-    If not, create a new user with a random unguessable password.
-    """
+    # Login or register google user
     if not email:
         return {"success": False, "error": "Email is required"}
 
@@ -73,27 +63,17 @@ def login_or_register_google_user(email: str, name: str, avatar_url: str) -> dic
     _set_session(user)
     return {"success": True, "user": user}
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+# Auth Constants
 
 SESSION_USER_ID = "user_id"
 SESSION_USERNAME = "username"
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
+# User Registration
 
 
 def register_user(username: str, email: str, password: str) -> dict:
-    """
-    Validate input and create a new user record.
-
-    Returns:
-        {"success": True, "user_id": <int>}
-        {"success": False, "error": "<message>"}
-    """
+    # Register user logic
     base_username = (username or "").strip().replace("#", "")
     email = (email or "").strip().lower()
 
@@ -148,20 +128,11 @@ def register_user(username: str, email: str, password: str) -> dict:
     return {"success": True, "user_id": user_id}
 
 
-# ---------------------------------------------------------------------------
-# Login
-# ---------------------------------------------------------------------------
+# User Login
 
 
 def login_user(username: str, password: str) -> dict:
-    """
-    Verify credentials and store user info in the session.
-    The `username` parameter can be either the username or the email address.
-
-    Returns:
-        {"success": True, "user": User}
-        {"success": False, "error": "<message>"}
-    """
+    # Log user in
     username = (username or "").strip()
 
     if not username or not password:
@@ -189,23 +160,19 @@ def login_user(username: str, password: str) -> dict:
     return {"success": True, "user": user}
 
 
-# ---------------------------------------------------------------------------
-# Logout
-# ---------------------------------------------------------------------------
+# User Logout
 
 
 def logout_user():
-    """Clear the session to log the current user out."""
+    # Clear user session
     session.clear()
 
 
-# ---------------------------------------------------------------------------
-# Session helpers
-# ---------------------------------------------------------------------------
+# Session Helpers
 
 
 def _set_session(user: User):
-    """Write user info to the Flask session."""
+    # Set user session
     session[SESSION_USER_ID] = user.id
     session[SESSION_USERNAME] = user.username
     if current_app.config.get("SESSION_PERMANENT"):
@@ -213,11 +180,7 @@ def _set_session(user: User):
 
 
 def get_current_user() -> User | None:
-    """
-    Return the logged-in User object, or None if not authenticated.
-    Makes a DB round-trip; call sparingly (e.g. once per request in a
-    before_request hook or a context processor).
-    """
+    # Get current user
     user_id = session.get(SESSION_USER_ID)
     if user_id is None:
         return None
@@ -238,16 +201,7 @@ def get_current_user() -> User | None:
 
 
 def login_required(f):
-    """
-    Decorator that redirects unauthenticated users to the login page.
-
-    Usage::
-
-        @main.route("/dashboard")
-        @login_required
-        def dashboard():
-            ...
-    """
+    # Requires user login
     from functools import wraps
     from flask import redirect, url_for
 
@@ -261,9 +215,7 @@ def login_required(f):
 
 
 def admin_required(f):
-    """
-    Decorator that restricts access to users with the 'admin' role.
-    """
+    # Requires admin role
     from functools import wraps
     from flask import redirect, url_for, flash
 

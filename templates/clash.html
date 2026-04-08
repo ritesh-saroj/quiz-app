@@ -203,7 +203,7 @@
 
 {% block extra_js %}
 <script>
-// --- Progression Locking Logic ---
+// Progression Logic
 const progMap = JSON.parse('{{ prog_map | tojson | safe }}');
 const categoryRadios = document.querySelectorAll('input[name="category"]');
 const stageSelector = document.getElementById('stage-selector');
@@ -248,7 +248,7 @@ function renderLevels() {
 categoryRadios.forEach(radio => radio.addEventListener('change', renderProgression));
 if (stageSelector) { renderProgression(); }
 
-// --- Live Search Logic ---
+// Live Search Logic
 const searchInput = document.getElementById('friend_username_input');
 const searchDropdown = document.getElementById('search_results_dropdown');
 let searchTimeout = null;
