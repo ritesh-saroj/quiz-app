@@ -114,13 +114,18 @@ def admin_dashboard():
     users_rows = query_db("SELECT id, username, email, level, xp, role, created_at FROM users ORDER BY id DESC LIMIT 100")
     users = [dict(u) for u in users_rows] if users_rows else []
 
+    # Fetch categories
+    categories_rows = query_db("SELECT * FROM categories ORDER BY name ASC")
+    categories = [dict(c) for c in categories_rows] if categories_rows else []
+
     return render_template(
         "admin.html", 
         total_users=total_users, 
         total_quizzes=total_quizzes, 
         total_questions=total_questions,
         questions=questions,
-        users=users
+        users=users,
+        categories=categories
     )
 
 @main.route("/admin/question/add", methods=["POST"])
@@ -201,6 +206,33 @@ def admin_delete_user():
     except Exception as e:
         flash(f"Error deleting user: {str(e)}", "error")
         
+    return redirect(url_for("main.admin_dashboard"))
+
+
+@main.route("/admin/category/add", methods=["POST"])
+@admin_required
+def admin_add_category():
+    # Add new category
+    name = request.form.get("name", "").strip()
+    if not name:
+        flash("Category name cannot be empty.", "error")
+    else:
+        try:
+            execute_db("INSERT INTO categories (name) VALUES (?)", (name,))
+            flash(f"Category '{name}' added successfully!", "success")
+        except Exception:
+            flash(f"Category '{name}' already exists or failed to add.", "error")
+    return redirect(url_for("main.admin_dashboard"))
+
+
+@main.route("/admin/category/delete", methods=["POST"])
+@admin_required
+def admin_delete_category():
+    # Delete category
+    cat_id = request.form.get("category_id", type=int)
+    if cat_id:
+        execute_db("DELETE FROM categories WHERE id = ?", (cat_id,))
+        flash("Category deleted successfully.", "success")
     return redirect(url_for("main.admin_dashboard"))
 
 
@@ -300,7 +332,10 @@ def dashboard():
 def clash():
     # Multiplayer clash page
     user = get_current_user()
-    categories = ["Programming", "Science", "Mathematics", "General Knowledge", "Python", "Cybersecurity"]
+    
+    # Fetch categories from DB
+    cat_rows = query_db("SELECT name FROM categories ORDER BY name ASC")
+    categories = [r["name"] for r in cat_rows] if cat_rows else ["General Knowledge"]
 
     # 1. Safely ensure database has required schema for progression
     try:

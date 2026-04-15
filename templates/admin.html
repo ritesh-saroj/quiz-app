@@ -33,6 +33,7 @@
     <div class="admin-nav">
         <button class="admin-tab active" data-target="pane-overview"><i class="ph-bold ph-squares-four"></i> Overview</button>
         <button class="admin-tab" data-target="pane-questions"><i class="ph-bold ph-database"></i> Question Bank</button>
+        <button class="admin-tab" data-target="pane-categories"><i class="ph-bold ph-tag"></i> Categories</button>
         <button class="admin-tab" data-target="pane-players"><i class="ph-bold ph-users"></i> Players Directory</button>
     </div>
 
@@ -96,7 +97,11 @@
                         </div>
                         <div class="form-group">
                             <label>Category</label>
-                            <input type="text" name="category" class="form-control" value="General Knowledge" required>
+                            <select name="category" class="form-control" required>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="form-group"><label>Stage</label><input type="number" name="stage" class="form-control" value="1" min="1" required></div>
                         <div class="form-group"><label>Level</label><input type="number" name="level" class="form-control" value="1" min="1" required></div>
@@ -155,6 +160,59 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Categories Pane -->
+    <div id="pane-categories" class="admin-pane">
+        <div class="admin-split-layout">
+            <!-- Add Category Form -->
+            <div class="glass hover-glow" style="padding: 2rem; border-radius: 20px;">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="ph-fill ph-plus-circle text-success"></i> Add Category
+                </h3>
+                <form action="{{ url_for('main.admin_add_category') }}" method="POST">
+                    <div class="form-group">
+                        <label>Category Name</label>
+                        <input type="text" name="name" class="form-control" required placeholder="e.g., History">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full"><i class="ph-bold ph-plus"></i> Add Category</button>
+                </form>
+            </div>
+
+            <!-- Categories List -->
+            <div class="glass hover-glow" style="padding: 2rem; border-radius: 20px;">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="ph-fill ph-tag text-primary"></i> Current Categories
+                </h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cat in categories %}
+                            <tr>
+                                <td class="font-bold">{{ cat.name }}</td>
+                                <td class="text-right">
+                                    <form action="{{ url_for('main.admin_delete_category') }}" method="POST" style="margin:0;" onsubmit="return confirm('Delete category {{ cat.name }}? This will not delete questions, but they will lose this category reference.');">
+                                        <input type="hidden" name="category_id" value="{{ cat.id }}">
+                                        <button type="submit" class="btn btn-glass btn-sm">
+                                            <i class="ph-bold ph-trash text-danger"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="2" class="text-center text-muted">No categories found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -259,7 +317,11 @@ function editQuestion(btn) {
     form.querySelector('[name=option_c]').value = qData.option_c;
     form.querySelector('[name=option_d]').value = qData.option_d;
     form.querySelector('[name=correct_answer]').value = qData.correct_answer;
-    form.querySelector('[name=category]').value = qData.category;
+    
+    // Set category select value
+    const catSelect = form.querySelector('select[name=category]');
+    if (catSelect) catSelect.value = qData.category;
+    
     form.querySelector('[name=stage]').value = qData.stage;
     form.querySelector('[name=level]').value = qData.level;
     

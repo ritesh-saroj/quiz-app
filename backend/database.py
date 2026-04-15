@@ -81,6 +81,11 @@ def init_db(app):
                     rank    INTEGER,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 );
+
+                CREATE TABLE IF NOT EXISTS categories (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL UNIQUE
+                );
             """)
 
     # Register teardown so connections are closed after each request
