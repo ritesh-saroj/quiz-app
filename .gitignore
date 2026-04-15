@@ -21,11 +21,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# Database
-database/quiz_app.db
-*.sqlite3
-*.db
-
 # Environments
 .env
 .flaskenv
