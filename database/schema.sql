@@ -46,5 +46,9 @@ CREATE TABLE IF NOT EXISTS party_results (
     score INTEGER NOT NULL,
     total_questions INTEGER NOT NULL,
     finished_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_total_questions_positive CHECK (total_questions > 0),
+    CONSTRAINT chk_score_range CHECK (score >= 0 AND score <= total_questions)
 );
+
+CREATE INDEX IF NOT EXISTS idx_party_results_room_code ON party_results(room_code);

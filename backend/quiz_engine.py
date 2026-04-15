@@ -177,6 +177,17 @@ def finish_quiz(user_id: int) -> dict:
         )
 
     total = len(ids)
+    
+    def _clear_quiz_session():
+        for key in (
+            SESSION_QUESTION_IDS,
+            SESSION_CURRENT_INDEX,
+            SESSION_ANSWERS,
+            SESSION_NUM_QUESTIONS,
+            "quiz_deadline",
+            "active_party_room"
+        ):
+            session.pop(key, None)
 
     # --- Handle Party Match Finish ---
     if active_party_room:
@@ -199,6 +210,7 @@ def finish_quiz(user_id: int) -> dict:
             (active_party_room, user_id, score, total)
         )
         
+        _clear_quiz_session()
         return {
             "success": True,
             "party_mode": True,
@@ -220,6 +232,7 @@ def finish_quiz(user_id: int) -> dict:
     # --- Update leaderboard ---
     update_leaderboard(user_id, score)
 
+    _clear_quiz_session()
     return {
         "success": True,
         "result_id": result_id,

@@ -63,12 +63,13 @@
     <p class="text-muted" style="margin-bottom: 3rem;">Multiplayer "Clash" Summary</p>
     
     {% if results %}
+        {% set max_score = results | map(attribute='score') | max if results else 0 %}
         <div class="match-leaderboard">
             {% for res in results %}
-                {% set winner = (loop.first and res.score > 0) %}
-                <div class="glass leaderboard-entry {{ 'winner' if winner else '' }}">
+                {% set is_winner = (res.score == max_score and max_score > 0) %}
+                <div class="glass leaderboard-entry {{ 'winner' if is_winner else '' }}">
                     
-                    {% if winner %}
+                    {% if is_winner %}
                         <div style="position: absolute; top: 0; left: 0; padding: 4px 12px; font-size: 0.65rem; background: var(--primary); color: #fff; font-weight: 800; text-transform: uppercase; border-bottom-right-radius: 12px; letter-spacing: 1px;">
                             <i class="ph-fill ph-crown" style="color:#fff;"></i> Match Winner
                         </div>
@@ -123,8 +124,8 @@
         <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline btn-lg" style="padding: 1rem 2rem;">Dashboard</a>
     </div>
 
-    <!-- Live Update Script -->
-    {% if party and results|length < party.max_size %}
+    <!-- Live Update Script: Refreshes if match is not yet full -->
+    {% if not results or (party and results|length < party.max_size) %}
     <script>
         // Refresh every 5 seconds until everyone is finished
         setTimeout(() => {

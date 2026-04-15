@@ -514,9 +514,6 @@ def quiz_finish():
     # Redirect to appropriate result page
     if result.get("party_mode"):
         room_code = result.get("room_code")
-        # Clear party session state so they can't re-enter the same quiz
-        for key in ["quiz_question_ids", "quiz_current_index", "quiz_answers", "quiz_num_questions", "quiz_deadline", "active_party_room"]:
-            session.pop(key, None)
         return redirect(url_for("main.party_results", room_code=room_code))
 
     return redirect(url_for("main.result"))
