@@ -2,6 +2,7 @@
 
 from database import query_db, execute_db
 from models import LeaderboardEntry
+from gamification import get_rank_title
 
 # Fetch top players
 
@@ -56,11 +57,6 @@ def get_user_rank(user_id: int) -> dict | None:
 
 
 # Update leaderboard scores
-
-
-from gamification import calculate_xp, award_xp, get_rank_title
-
-# ... rest of the file ...
 
 def update_leaderboard(user_id: int, quiz_score: int) -> None:
     # Update user best score
