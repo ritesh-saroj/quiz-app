@@ -58,9 +58,12 @@ def get_user_rank(user_id: int) -> dict | None:
 # Update leaderboard scores
 
 
+from gamification import calculate_xp, award_xp, get_rank_title
+
+# ... rest of the file ...
+
 def update_leaderboard(user_id: int, quiz_score: int) -> None:
     # Update user best score
-    # Upsert: keep the higher of the stored score vs. the new score
     existing = query_db(
         "SELECT id, score FROM leaderboard WHERE user_id = ?",
         (user_id,),
@@ -78,38 +81,38 @@ def update_leaderboard(user_id: int, quiz_score: int) -> None:
             (quiz_score, user_id),
         )
 
-    # Recompute stored ranks for all entries (keeps the rank column in sync)
-    _refresh_ranks()
-
-
-def _refresh_ranks() -> None:
-    # Refresh leaderboard ranks
-    rows = query_db("""
-        SELECT lb.id
-        FROM   leaderboard lb
-        JOIN   users u ON u.id = lb.user_id
-        ORDER  BY u.xp DESC
-        """)
-    for rank, row in enumerate(rows, start=1):
-        execute_db(
-            "UPDATE leaderboard SET rank = ? WHERE id = ?",
-            (rank, row["id"]),
-        )
+    # Ranking is now dynamic, no need to refresh stored ranks
 
 
 # Model wrappers
 
 
 def get_top_entries(limit: int = 20) -> list[LeaderboardEntry]:
-    # Get top entries as objects
+    # Get top entries with dynamic ranking by total XP
     rows = query_db(
         """
-        SELECT lb.user_id, lb.score, lb.rank, u.username
-        FROM   leaderboard lb
-        JOIN   users u ON u.id = lb.user_id
-        ORDER  BY lb.rank ASC
-        LIMIT  ?
+        SELECT 
+            lb.user_id, 
+            lb.score, 
+            u.username,
+            u.xp,
+            u.level,
+            u.avatar_url,
+            ROW_NUMBER() OVER (ORDER BY u.xp DESC) as rank
+        FROM leaderboard lb
+        JOIN users u ON u.id = lb.user_id
+        ORDER BY rank ASC
+        LIMIT ?
         """,
         (limit,),
     )
-    return [LeaderboardEntry(r) for r in rows] if rows else []
+    
+    entries = []
+    if rows:
+        for r in rows:
+            data = dict(r)
+            # Add rank title dynamically based on level
+            data["rank_title"] = get_rank_title(data["level"])
+            entries.append(LeaderboardEntry(data))
+    
+    return entries

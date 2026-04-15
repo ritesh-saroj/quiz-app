@@ -69,9 +69,14 @@ class LeaderboardEntry:
     def __init__(self, row):
         self.user_id = row["user_id"]
         self.score = row["score"]
-        self.rank = row["rank"]
+        self.rank = row[
+            "rank"
+        ]  # This is now dynamic from ROW_NUMBER() in the query
         # These come from a JOIN with users
         self.username = row["username"] if "username" in row.keys() else None
+        self.level = row["level"] if "level" in row.keys() else 1
+        self.avatar_url = row["avatar_url"] if "avatar_url" in row.keys() else None
+        self.rank_title = row["rank_title"] if "rank_title" in row.keys() else ""
 
     def __repr__(self):
         return f"<LeaderboardEntry rank={self.rank} user={self.username}>"

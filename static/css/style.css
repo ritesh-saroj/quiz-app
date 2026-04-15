@@ -489,6 +489,12 @@ img { display: block; max-width: 100%; height: auto; }
     color: var(--text-main);
 }
 
+/* Hide native browser password reveal buttons */
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+
 .input-with-icon { position: relative; }
 .input-with-icon i:not(.toggle-password) {
     position: absolute; left: 1rem; top: 50%;
