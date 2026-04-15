@@ -510,6 +510,15 @@ def quiz_finish():
                     else: execute_db("INSERT INTO user_progress (user_id, category, unlocked_stage, unlocked_level) VALUES (?, ?, ?, ?)", (user.id, cat, new_stg, new_lvl))
 
     session["last_result"] = result
+    
+    # Redirect to appropriate result page
+    if result.get("party_mode"):
+        room_code = result.get("room_code")
+        # Clear party session state so they can't re-enter the same quiz
+        for key in ["quiz_question_ids", "quiz_current_index", "quiz_answers", "quiz_num_questions", "quiz_deadline", "active_party_room"]:
+            session.pop(key, None)
+        return redirect(url_for("main.party_results", room_code=room_code))
+
     return redirect(url_for("main.result"))
 
 
@@ -911,7 +920,17 @@ def party_results(room_code):
         flash("Party not found.", "error")
         return redirect(url_for('main.clash'))
         
-    return render_template("party_results.html", room_code=room_code)
+    results_rows = query_db("""
+        SELECT pr.score, pr.total_questions, pr.finished_at, u.username, u.avatar_url, u.level
+        FROM party_results pr
+        JOIN users u ON pr.user_id = u.id
+        WHERE pr.room_code = ?
+        ORDER BY pr.score DESC, pr.finished_at ASC
+    """, (room_code,))
+    
+    results = [dict(r) for r in results_rows] if results_rows else []
+    
+    return render_template("party_results.html", room_code=room_code, results=results, party=party)
 
 
 @main.route("/party/<room_code>/progress")

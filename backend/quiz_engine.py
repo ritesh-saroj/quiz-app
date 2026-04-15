@@ -199,20 +199,12 @@ def finish_quiz(user_id: int) -> dict:
             (active_party_room, user_id, score, total)
         )
         
-        for key in (
-            SESSION_QUESTION_IDS,
-            SESSION_CURRENT_INDEX,
-            SESSION_ANSWERS,
-            SESSION_NUM_QUESTIONS,
-            "quiz_deadline",
-            "active_party_room",
-        ):
-            session.pop(key, None)
-            
         return {
             "success": True,
             "party_mode": True,
-            "room_code": active_party_room
+            "room_code": active_party_room,
+            "score": score,
+            "total": total
         }
 
     # --- Persist result ---
@@ -227,17 +219,6 @@ def finish_quiz(user_id: int) -> dict:
 
     # --- Update leaderboard ---
     update_leaderboard(user_id, score)
-
-    # --- Clear quiz session state ---
-    for key in (
-        SESSION_QUESTION_IDS,
-        SESSION_CURRENT_INDEX,
-        SESSION_ANSWERS,
-        SESSION_NUM_QUESTIONS,
-        "quiz_deadline",
-        "active_party_room",
-    ):
-        session.pop(key, None)
 
     return {
         "success": True,

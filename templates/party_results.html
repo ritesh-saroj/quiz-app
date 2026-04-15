@@ -1,27 +1,140 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+/* Base entry styles */
+.leaderboard-entry {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.leaderboard-entry.winner {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.4) !important;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+    animation: winnerPulse 2s infinite ease-in-out;
+}
+
+.rank-badge {
+    width: 40px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+.winner .rank-badge { color: var(--primary-light); }
+
+.avatar-container {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid var(--glass-border);
+    overflow: hidden;
+    margin: 0 1.5rem;
+}
+.winner .avatar-container { border-color: var(--primary); }
+
+.accuracy-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+.winner .accuracy-text { color: var(--success); }
+
+@keyframes winnerPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="glass text-center fade-in hover-glow" style="max-width: 800px; margin: 3rem auto; padding: 4rem 2rem;">
-    <h1 class="text-gradient" style="font-size: 3rem;">Match Finished!</h1>
+    <h1 class="text-gradient" style="font-size: 3rem; margin-bottom: 0.5rem;">Match Results</h1>
+    <p class="text-muted" style="margin-bottom: 3rem;">Multiplayer "Clash" Summary</p>
     
-    <div class="level-up-banner mt-4" style="background: rgba(0,0,0,0.3); border-color: var(--glass-border); color: var(--text-muted); animation: none; padding: 2.5rem; justify-content: center; gap: 15px;">
-        <i class="ph-bold ph-spinner-gap" style="font-size: 3rem; animation: spin 1.5s linear infinite; color: var(--primary);"></i>
-        <div>
-            <p style="font-size: 1.2rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.5rem;">You've submitted your answers!</p>
-            <p class="text-muted" style="margin-bottom: 0;">Waiting for the other players to finish...</p>
+    {% if results %}
+        <div class="match-leaderboard">
+            {% for res in results %}
+                {% set winner = (loop.first and res.score > 0) %}
+                <div class="glass leaderboard-entry {{ 'winner' if winner else '' }}">
+                    
+                    {% if winner %}
+                        <div style="position: absolute; top: 0; left: 0; padding: 4px 12px; font-size: 0.65rem; background: var(--primary); color: #fff; font-weight: 800; text-transform: uppercase; border-bottom-right-radius: 12px; letter-spacing: 1px;">
+                            <i class="ph-fill ph-crown" style="color:#fff;"></i> Match Winner
+                        </div>
+                    {% endif %}
+
+                    <div class="rank-badge">
+                        {{ loop.index }}
+                    </div>
+
+                    <div class="avatar-container">
+                        <img src="{{ res.avatar_url or url_for('static', filename='images/default_avatar.png') }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+
+                    <div style="text-align: left; flex-grow: 1;">
+                        <h3 style="margin: 0; font-size: 1.25rem; color: #fff;">{{ res.username }}</h3>
+                        <span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 0.75rem;">Level {{ res.level }}</span>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.8rem; font-weight: 800; line-height: 1; color: #fff;">{{ res.score }}<span style="font-size: 1rem; color: var(--text-muted);">/{{ res.total_questions }}</span></div>
+                        {% if res.total_questions > 0 %}
+                            <div class="accuracy-text">{{ ((res.score / res.total_questions) * 100) | round | int }}% Accuracy</div>
+                        {% else %}
+                            <div class="accuracy-text">0% Accuracy</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
         </div>
+
+        {% if party and results|length < party.max_size %}
+            <div class="glass" style="padding: 1rem; border-radius: 15px; background: rgba(0,0,0,0.2); border-color: var(--glass-border); margin-top: 2rem;">
+                <p class="text-muted" style="margin: 0; display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    <i class="ph-bold ph-spinner-gap ph-spin" style="color: var(--primary);"></i> Waiting for {{ party.max_size - results|length }} other player(s) to finish...
+                </p>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="level-up-banner mt-4" style="background: rgba(0,0,0,0.3); border-color: var(--glass-border); color: var(--text-muted); animation: none; padding: 2.5rem; justify-content: center; gap: 15px;">
+            <i class="ph-bold ph-spinner-gap" style="font-size: 3rem; animation: spin 1.5s linear infinite; color: var(--primary);"></i>
+            <div>
+                <p style="font-size: 1.2rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.5rem;">Gathering Final Results...</p>
+                <p class="text-muted" style="margin-bottom: 0;">Waiting for the match data to sync.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 3rem;">
+        <a href="{{ url_for('main.clash') }}" class="btn btn-primary btn-lg" style="padding: 1rem 2rem; display: flex; align-items: center; gap: 8px;">
+            <i class="ph-bold ph-sword"></i> Arena
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline btn-lg" style="padding: 1rem 2rem;">Dashboard</a>
     </div>
 
-    <p class="text-muted mt-4">This page will show the final scores once everyone is done.</p>
-    
-    <div class="mt-4">
-        <a href="{{ url_for('main.dashboard') }}" class="btn btn-glass" style="padding: 1rem 2rem; border-radius: 999px;">Return to Dashboard</a>
-    </div>
+    <!-- Live Update Script -->
+    {% if party and results|length < party.max_size %}
+    <script>
+        // Refresh every 5 seconds until everyone is finished
+        setTimeout(() => {
+            window.location.reload();
+        }, 5000);
+    </script>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<style>
-@keyframes spin { 100% { transform: rotate(360deg); } }
-</style>
+<!-- Place scripts here if needed -->
 {% endblock %}
