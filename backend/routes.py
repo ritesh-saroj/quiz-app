@@ -230,9 +230,27 @@ def admin_add_category():
 def admin_delete_category():
     # Delete category
     cat_id = request.form.get("category_id", type=int)
-    if cat_id:
+    if not cat_id:
+        flash("Invalid category ID.", "error")
+        return redirect(url_for("main.admin_dashboard"))
+
+    # Fetch category name to check for questions
+    category = query_db("SELECT name FROM categories WHERE id = ?", (cat_id,), one=True)
+    if not category:
+        flash("Category not found.", "error")
+        return redirect(url_for("main.admin_dashboard"))
+    
+    cat_name = category["name"]
+    
+    # Check if any questions are using this category
+    question_count = query_db("SELECT COUNT(*) as count FROM questions WHERE category = ?", (cat_name,), one=True)["count"]
+    
+    if question_count > 0:
+        flash(f"Cannot delete category '{cat_name}' because it contains {question_count} question(s). Please reassign or delete the questions first.", "warning")
+    else:
         execute_db("DELETE FROM categories WHERE id = ?", (cat_id,))
-        flash("Category deleted successfully.", "success")
+        flash(f"Category '{cat_name}' deleted successfully.", "success")
+        
     return redirect(url_for("main.admin_dashboard"))
 
 
